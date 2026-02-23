@@ -1,0 +1,48 @@
+---
+# tasks file for roles/webserver-role
+- name: Determine package based on OS
+  set_fact:
+    nginx_package: "{{ nginx_package_debian if ansible_os_family == 'Debian' else nginx_package_redhat }}"
+    nginx_root: "{{ nginx_root_debian if ansible_os_family == 'Debian' else nginx_root_redhat  }}"
+    nginx_conf_path: "{{ nginx_conf_path_debian if ansible_os_family == 'Debian' else nginx_conf_path_redhat }}"
+
+- name: Install nginx
+  package:
+    name: "{{ nginx_package }}"
+    state: present
+
+- name: Ensure nginx root directory exists
+  file:
+    path: "{{ nginx_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Fix Selinux context for nginx root (Almalinux/RHEL)
+  command: chcon -R -t httpd_sys_content_t {{ nginx_root }}
+  when: ansible_os_family == 'RedHat'
+
+- name: Deploy index.html template
+  template:
+    src: index.html.j2
+    dest: "{{ nginx_root  }}/index.html"
+  notify: restart nginx
+
+- name: Deploy nginx server block
+  template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_conf_path }}"
+  notify: restart nginx
+
+- name: Test nginx configuration syntax
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  failed_when: nginx_test.rc !=0
+
+- name: Ensure nginx is running
+  service:
+    name: "{{  nginx_service_name }}"
+    state: started
+    enabled: yes

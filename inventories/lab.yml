@@ -1,0 +1,16 @@
+all:
+  children:
+    web:
+      hosts:
+        ubuntu-vm1:
+          ansible_host: 192.168.122.231
+          ansible_user: admin-ubuntu1
+        alma-vm1:
+          ansible_host: 192.168.122.233
+          ansible_user: admin-alma1
+        ubuntu-vm2:
+          ansible_host: 192.168.122.232
+          ansible_user: admin-ubuntu2
+        alma-vm2:
+          ansible_host: 192.168.122.234
+          ansible_user: admin-alma2

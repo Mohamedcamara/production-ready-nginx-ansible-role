@@ -1,0 +1,5 @@
+---
+# defaults file for roles/webserver-role
+web_port: 8080
+web_server_name: localhost
+ingenieur_devops: "Exceptionnel Med Cam's --- med3camara@gmail.com"
