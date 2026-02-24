@@ -1,10 +1,7 @@
 ---
 # tasks file for roles/webserver-role
-- name: Determine package based on OS
-  set_fact:
-    nginx_package: "{{ nginx_package_debian if ansible_os_family == 'Debian' else nginx_package_redhat }}"
-    nginx_root: "{{ nginx_root_debian if ansible_os_family == 'Debian' else nginx_root_redhat  }}"
-    nginx_conf_path: "{{ nginx_conf_path_debian if ansible_os_family == 'Debian' else nginx_conf_path_redhat }}"
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "os/{{ ansible_facts['os_family'] }}.yml"
 
 - name: Install nginx
   package:
@@ -20,7 +17,10 @@
     mode: '0755'
 
 - name: Fix Selinux context for nginx root (Almalinux/RHEL)
-  command: chcon -R -t httpd_sys_content_t {{ nginx_root }}
+  ansible.posix.seboolean:
+    name: httpd_read_user_content
+    state: true
+    persistent: true
   when: ansible_os_family == 'RedHat'
 
 - name: Deploy index.html template

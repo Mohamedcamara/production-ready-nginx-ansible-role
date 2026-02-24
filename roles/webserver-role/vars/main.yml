@@ -1,9 +1,0 @@
----
-# vars file for roles/webserver-role
-nginx_package_debian: nginx
-nginx_package_redhat: nginx
-nginx_service_name: nginx
-nginx_conf_path_debian: /etc/nginx/sites-available/default
-nginx_conf_path_redhat: "/etc/nginx/conf.d/{{ web_server_name }}.conf"
-nginx_root_debian: /var/www/html
-nginx_root_redhat: /usr/share/nginx/html
